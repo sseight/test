@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+    {{ article_obj.content|safe }}
+    <div id="div_digg" class="clearfix">
+        <div class="diggit up_down">
+            <span class="diggnum" id="digg_count">{{ article_obj.up_count }}</span>
+        </div>
+        <div class="buryit up_down">
+            <span class="burynum" id="bury_count">{{ article_obj.down_count }}</span>
+        </div>
+        <div class="clear"></div>
+        <div class="diggword" id="digg_tips">
+        </div>
+        {% csrf_token %}
+    </div>
+    <div class="clear"></div>
+    <div id="comment">
+        <hr>
+        {% for comment in comment_list %}
+            {% if comment.parent_comment.id %}
+
+            {% endif %}
+            <div>
+                <div class="info">
+                    <span style="color: #2b669a">#{{ forloop.counter }}楼</span> &nbsp;
+                    <span>{{ comment.create_time|date:'Y-m-d H:i:s' }}</span> &nbsp;
+                    <span style="color: #2b669a">{{ comment.user.username }}</span>
+                    <a href="javascript:void(0)" class="pull-right sub_comment" comment_id="{{ comment.pk }}"
+                       username="{{ comment.user.username }}">回复</a>
+                </div>
+                {% if comment.parent_comment.pk %}
+                    <div class="">
+                        <p style="color: #888;">{{ comment.parent_comment.content }}</p>
+                    </div>
+                    <div class="well">
+                        <span class="small pull-right" style="color: #888;">{{ comment.content }} By {{ comment.user.username }}</span>
+                    </div>
+                {% else %}
+                    <div>
+                        <span class="" style="color: #888;">{{ comment.content }}</span>
+                    </div>
+                {% endif %}
+                <hr>
+            </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="commentform clearfix">
+        <div id="comment_form_container" class="clearfix">
+            <script type="text/javascript" src="//mention.cnblogs.com/bundles/mention.js?id=20160615"></script>
+            <div id="commentform_title">发表评论</div>
+            <span id="tip_comment" style="color:Red"></span>
+            <p>
+                昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50"
+                          value="{{ user.username }}">
+            </p>
+            <div class="commentbox_main">
+                <div class="commentbox_title">
+                    <div class="commentbox_title_left">评论内容：</div>
+                </div>
+                <div class="clear"></div>
+                <textarea id="tbCommentBody" class="comment_textarea"></textarea>
+            </div>
+            <p id="commentbox_opt">
+                <input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论">
+            </p>
+            <div id="tip_comment2" style="color:Red"></div>
+            <div style="display:none">
+                <span id="comment_edit_id"></span><span id="span_parentcomment_id"></span>
+                <span id="span_parent_id"></span>
+                <span id="span_comment_replyto"></span>
+                <span id="span_comment_posted"></span>
+            </div>
+        </div>
+    </div>
+    <script>
+        /*点赞与踩灭功能*/
+        $(".up_down").click(function () {
+            {#当点击的标签有diggit类表明点击的是点赞标签，则返回为true，否则为false#}
+            var is_up = $(this).hasClass("diggit");
+            var _this = $(this).children("span");
+            $.ajax({
+                url: "/up_down/",
+                type: "post",
+                data: {
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                    article_id:{{ article_id }},
+                    is_up: is_up,
+                },
+                success: function (data) {
+                    if (data["status"]) {
+                        _this.text(parseInt(_this.text()) + 1);
+                    } else {
+                        $("#digg_tips").text(data["msg"]);
+                    }
+                }
+            });
+            setTimeout(function () {
+                $("#digg_tips").text("");
+            }, 1000);
+        });
+        /*评论功能*/
+        /*判读根评论与子评的依据是：
+        *   在默认情况下parent_id为空，那么后端接收到的parent_id就也是为空的，当点击回复按钮之后，会立刻更改全局变量parent_id 的值。
+        * */
+        var parent_id = "";
+        $("#btn_comment_submit").click(function () {
+            var content = $("#tbCommentBody").val();
+            $.ajax({
+                url: "/comment/",
+                type: 'post',
+                data: {
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                    /*后台只要是传入模板中的变量在JS中同样可以调用*/
+                    article_id:{{ article_id }},
+                    comment: content,
+                    parent_id: parent_id,
+                },
+                success: function (data) {
+                    var div1 = document.createElement("div");
+                    div1.style.border = '1px solid #ddd';
+                    var p1 = document.createElement("b");
+                    p1.style.color = "#399ab2";
+                    var p2 = document.createElement("p");
+                    p1.innerText = "{{ user.username }}:";
+                    p2.innerText = content;
+                    div1.appendChild(p1);
+                    div1.appendChild(p2);
+                    $("#comment").append(div1);
+                }
+            });
+        });
+        /*回复自评论功能*/
+        $(".sub_comment").click(function () {
+            /*点击回复之后将光标获取到textarea*/
+            $("#tbCommentBody").focus();
+            /*更改全局parent_id*/
+            var username = $(this).attr("username");
+            var get_parent_id = $(this).attr("comment_id");
+            parent_id = get_parent_id;
+            $("#tbCommentBody").text("@" + username + "\n");
+        });
+    </script>
+{% endblock %}

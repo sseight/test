@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+    <style>
+        .title {
+            line-height: 50px;
+            font-weight: lighter;
+            font-size: 18px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p class="title">{{ user.blog.title }}</p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav" style="margin-left: 5px">
+                <li class="active"><a href="/cnblog.com/">首页</a></li>
+                <li class=""><a href="/backend/">管理</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.username %}
+                    <li><a href="../navbar/">{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">个人中心 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">修改用户信息</a></li>
+                            <li><a href="#">修改密码</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="">注册</a></li>
+                    <li><a href="">登录</a></li>
+                {% endif %}
+
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="col-md-2">
+        {% load mytags %}
+        {% left user %}
+    </div>
+    <div class="col-md-8">
+        {% for article in article_list %}
+            <div>
+                <div class="title">
+                    <h5><a href="/cnblog.com/site/{{ username }}/article/{{ article.pk }}/">{{ article.title }}</a></h5>
+                </div>
+                <div class="desc small">
+                    <span class="media-left">{{ article.desc }}</span>
+                </div>
+                <div class="info small pull-right">
+                    <span>{{ article.user.username }}</span> <span>发布于</span> &nbsp;
+                    <span>{{ article.create_time|date:"Y-m-d H:i:s" }} </span>
+                    &nbsp;
+                    <span class="glyphicon glyphicon-thumbs-up"></span> 点赞数({{ article.up_count }})
+                    &nbsp;
+                    <span class="glyphicon glyphicon-pencil"></span> 评论数({{ article.comment_count }})
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
