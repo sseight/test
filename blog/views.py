@@ -155,4 +155,5 @@ class Editor(View):
 
 class Delete(View):
     def get(self,request):
+        print("搜索功能")
         return HttpResponse("ok")
