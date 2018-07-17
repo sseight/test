@@ -157,4 +157,5 @@ class Delete(View):
     def get(self,request):
         print("搜索功能")
         print("购物车功能")
+        print("添加在线直播功能")
         return HttpResponse("ok")
