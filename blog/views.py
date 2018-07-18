@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.views import View
 from django.contrib import auth
 from blog.models import *
+from django.http import JsonResponse
 # Create your views here.
 
 
@@ -11,11 +12,41 @@ class Index(View):
         return render(request,"index.html",locals())
 
 
+def get_valid_img(request):
+    import random
+    from PIL import Image
+    from io import BytesIO
+    from PIL import ImageDraw, ImageFont
+
+    def get_random_color():
+        return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    f = BytesIO()
+    image = Image.new(mode="RGB", size=(120, 80), color=get_random_color())
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype("kumo.ttf", size=36)
+    temp = []
+    for i in range(5):
+        random_char = random.choice(
+            [str(random.randint(0, 9)), chr(random.randint(65, 90)), chr(random.randint(97, 122))])
+        draw.text((i * 24, 26), random_char, get_random_color(), font=font)
+        temp.append(random_char)
+    image.save(f, "png")
+    data = f.getvalue()
+    request.session["random_code_str"] = "".join(temp)
+    return HttpResponse(data)
+
+
 class Login(View):
     def get(self,request,*args,**kwargs):
         return render(request,"login.html")
 
     def post(self, request, *args, **kwargs):
+        response = {"status":True,"msg":None}
+        validcode = request.POST.get("validcode")
+        if validcode.upper() != request.session.get("random_code_str"):
+            response["status"] = False
+            response["msg"] = "验证码错误"
+            return JsonResponse(response)
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = auth.authenticate(username=username,password=password)
@@ -23,7 +54,9 @@ class Login(View):
             auth.login(request,user)
             return redirect("/cnblog.com/")
         else:
-            return redirect("/cnblog.com/login/")
+            response["status"] = False
+            response["msg"] = "用户名或密码错误!"
+            return JsonResponse(response)
 
 
 # 个人站点
@@ -46,6 +79,7 @@ class Homesite(View):
             return render(request,"homesite.html",locals())
         else:
             return render(request,"not_found.html")
+
 
 class Article_detail(View):
     def get(self,request,*args,**kwargs):

@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^addarticle/$',views.Addarticle.as_view()),
     url(r'^cnblog.com/', include('blog.urls')),
     url(r'^article/', include('blog.urls')),
+    url(r'^validcode/',views.get_valid_img),
 ]
