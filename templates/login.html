@@ -43,7 +43,7 @@
                         <img id="valid_img" width="260" height="60" src="/validcode/" alt="">
                     </div>
                 </div>
-                <input type="button" value="登录" class="btn btn-primary pull-right login_btn"> <span class="error"></span>
+                <input type="button" value="登录" class="btn btn-primary pull-right login_btn btn-block"> <span class="error"></span>
             </form>
                 </div>
             </div>
@@ -67,9 +67,9 @@
             },
             success:function (data) {
                 if (data.status){   // 登录成功
-                    location.href="/index/"
+                    location.href="/cnblog.com/";
                 }
-                else{ // 登录失败！
+                else{
                   $(".error").html(data.msg).css("color","red");
                   setTimeout(function () {
                        $(".error").html("")
@@ -78,7 +78,6 @@
             }
         })
     });
-
     // 验证码刷新
     $("#valid_img").click(function () {
         $(this)[0].src+="?"

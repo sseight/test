@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h4>欢迎注册</h4>
+    </div>
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <form>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_user">用户名</label>
+                            {{ register_form.user }}
+                            <span class="pull-right"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_pwd">密码</label>
+                            {{ register_form.pwd }}
+                            <span class="pull-right"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_repeat_pwd">确认密码</label>
+                            {{ register_form.repeat_pwd }}
+                            <span class="pull-right"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">邮箱</label>
+                            {{ register_form.email }}
+                            <span class="pull-right"></span>
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="avatar">
+                                头像
+                                <img id="avatar_img" src="/static/pic/default.png" alt="" width="60" height="60">
+                            </label>&nbsp;&nbsp;
+
+                            <input type="file" style="display: none;" id="avatar">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="valid_code">验证码</label>
+                                    <input type="text" class="form-control" id="valid_code" placeholder="验证码">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <img id="valid_img" width="260" height="60" src="/validcode/" alt="">
+                            </div>
+                        </div>
+
+                        <input type="button" value="注册" class="btn btn-warning  btn-block reg_btn"> <span
+                            class="error"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 头像预览功能
+
+    $("#avatar").change(function () {
+        var choose_file = $(this)[0].files[0];
+        var reader = new FileReader();
+        reader.readAsDataURL(choose_file);
+        reader.onload = function () {
+            $("#avatar_img").attr("src", this.result)
+        }
+    });
+
+
+    // ajax提交数据
+    $(".reg_btn").click(function () {
+        var formdata = new FormData();
+        formdata.append("user", $("#id_user").val());
+        formdata.append("pwd", $("#id_pwd").val());
+        formdata.append("repeat_pwd", $("#id_repeat_pwd").val());
+        formdata.append("email", $("#id_email").val());
+        formdata.append("avatar", $("#avatar")[0].files[0]);
+        formdata.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+
+        $.ajax({
+            url: "",
+            type: "post",
+            data: formdata,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log(data);
+                var data = JSON.parse(data);
+                if (data.user) {
+                    location.href = "/cnblog.com/login/"
+                }
+                else {
+                    // 清空上次错误信息
+                    $("form span").html("");
+                    $(".form-group").removeClass("has-error");
+
+                    // 显示当前错误信息
+                    $.each(data.error_msg, function (field, error_info) {
+                        console.log(field, error_info[0]);
+                        $("#id_" + field).parent().addClass("has-error");
+                        $("#id_" + field).next().html(error_info[0]).css("color", "red");
+                        // 判断全局错误
+                        if (field == "__all__") {
+                            $("#id_repeat_pwd").next().html(error_info[0]).css("color", "red");
+                            $("#id_repeat_pwd").parent().addClass("has-error");
+                        }
+                    });
+
+
+                }
+            }
+        })
+
+    })
+
+
+</script>
+</body>
+</html>

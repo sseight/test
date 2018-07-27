@@ -2,6 +2,7 @@
 {% block content %}
     <h3 class="page-header">添加文章</h3>
     <form action="" method="post">
+        {% csrf_token %}
         <div class="input-group input-group col-md-8">
             <span class="input-group-addon" id="sizing-addon1">文章标题</span>
             <input type="text" class="form-control" placeholder="标题" aria-describedby="sizing-addon1" name="title">
@@ -13,7 +14,16 @@
     <script charset="utf-8" src="/static/kindeditor/kindeditor-all.js"></script>
     <script>
         KindEditor.ready(function (K) {
-            window.editor = K.create('#editor_id');
+            window.editor = K.create('#editor_id', {
+                width: 600,
+                height: 600,
+                resizeType: 0,
+                uploadJson: "/up_load/",
+                extraFileUploadParams: {
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                filePostName: "upload_img"
+            });
         });
     </script>
 {% endblock %}

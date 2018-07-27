@@ -16,13 +16,20 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from blog import views
+from django.views.static import serve
+from cnblog import settings
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$',views.Index.as_view()),
     url(r'^up_down/$',views.Up_down.as_view()),
+    url(r'^up_load/$',views.Up_load.as_view()),
     url(r'^comment/$',views.Sub_comment.as_view()),
     url(r'^backend/$',views.Backend.as_view()),
     url(r'^addarticle/$',views.Addarticle.as_view()),
     url(r'^cnblog.com/', include('blog.urls')),
     url(r'^article/', include('blog.urls')),
     url(r'^validcode/',views.get_valid_img),
+
+    # media 配置
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]

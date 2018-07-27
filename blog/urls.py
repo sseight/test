@@ -18,6 +18,9 @@ from . import views
 urlpatterns = [
     url(r'^$',views.Index.as_view()),
     url(r'^login/$',views.Login.as_view()),
+    url(r'^logout/$',views.Logout.as_view()),
+    url(r'^register/$',views.Register.as_view()),
+
     url(r'^site/(?P<username>\w+)/(?P<condition>category|tag|date)/(?P<param>.*)/$',views.Homesite.as_view()),
     url(r'^site/(?P<username>\w+)/$',views.Homesite.as_view()),
     url(r'^site/(?P<username>\w+)/article/(?P<article_id>\d+)/$',views.Article_detail.as_view()),
